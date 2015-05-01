@@ -13,6 +13,8 @@ RUN update-alternatives --install /usr/bin/java java /usr/java/jdk1.7.0_51/jre/b
 
 RUN curl --create-dirs -o /opt/embulk -L "http://dl.embulk.org/embulk-latest.jar" && chmod +x /opt/embulk
 
+RUN /opt/embulk gem install embulk-output-mysql
+
 COPY charset.cnf /etc/mysql/conf.d/charset.cnf
 COPY entrypoint.sh /opt/entrypoint.sh
 RUN chmod +x /opt/entrypoint.sh
@@ -22,4 +24,3 @@ VOLUME ["/var/lib/mysql", "/etc/mysql/conf.d", "/opt/setup.d"]
 ENTRYPOINT ["/opt/entrypoint.sh"]
 
 CMD ["mysqld"]
-
