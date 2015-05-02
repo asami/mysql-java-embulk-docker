@@ -98,8 +98,15 @@ exec "$@" &
 wait_db
 
 if [ -e "/opt/setup.d/setup.yml" ]; then
-    echo "embulk run setup.yml"
-    cd /opt/setup.d && /opt/embulk run setup.yml
+    if [ -n "$REDIS_SERVER_HOST" ]; then
+	if [ $(redis-cli -h $REDIS_SERVER_HOST -p $REDIS_SERVER_PORT GET $WAIT_CONTAINER_KEY)'' != 'up' ]; then
+	    echo "embulk run setup.yml"
+	    cd /opt/setup.d && /opt/embulk run setup.yml
+	fi
+    else
+	echo "embulk run setup.yml"
+	cd /opt/setup.d && /opt/embulk run setup.yml
+    fi
 fi
 
 if [ -n "$REDIS_SERVER_HOST" ]; then
