@@ -15,6 +15,8 @@ RUN curl --create-dirs -o /opt/embulk -L "http://dl.embulk.org/embulk-latest.jar
 
 RUN /opt/embulk gem install embulk-output-mysql
 
+RUN apt-get -y install redis-server
+
 COPY charset.cnf /etc/mysql/conf.d/charset.cnf
 COPY entrypoint.sh /opt/entrypoint.sh
 RUN chmod +x /opt/entrypoint.sh

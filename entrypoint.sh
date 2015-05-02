@@ -1,5 +1,15 @@
 #!/bin/bash
+
+# WAIT_DB_TIMER
+# WAIT_CONTAINER_KEY
+
+# set -x
+
 set -e
+
+echo Wait contaner key: ${WAIT_CONTAINER_KEY:=mysql-java-embulk-docker}
+echo Redis host: ${REDIS_SERVER_HOST:=$REDIS_PORT_6379_TCP_ADDR}
+echo Redis port: ${REDIS_SERVER_PORT:=$REDIS_PORT_6379_TCP_PORT}
 
 function check_db {
     if [ "$MYSQL_ROOT_PASSWORD" ]; then
@@ -13,7 +23,7 @@ function check_db {
 
 function wait_db {
     result=1
-    for i in 1 2 3 4 5 6 7 8 9 10
+    for i in $(seq 1 ${WAIT_DB_TIMER:-10})
     do
 	sleep 1s
 	result=0
@@ -85,10 +95,15 @@ fi
 
 exec "$@" &
 
+wait_db
+
 if [ -e "/opt/setup.d/setup.yml" ]; then
-    wait_db
     echo "embulk run setup.yml"
     cd /opt/setup.d && /opt/embulk run setup.yml
+fi
+
+if [ -n "$REDIS_SERVER_HOST" ]; then
+    redis-cli -h $REDIS_SERVER_HOST -p $REDIS_SERVER_PORT SET $WAIT_CONTAINER_KEY up
 fi
 
 sleep infinity
