@@ -39,6 +39,8 @@ if [ "${1:0:1}" = '-' ]; then
     set -- mysqld "$@"
 fi
 
+is_install=false
+
 if [ "$1" = 'mysqld' ]; then
     # read DATADIR from the MySQL config
     DATADIR="$("$@" --verbose --help 2>/dev/null | awk '$1 == "datadir" { print $2; exit }')"
@@ -49,6 +51,8 @@ if [ "$1" = 'mysqld' ]; then
             echo >&2 '  Did you forget to add -e MYSQL_ROOT_PASSWORD=... ?'
             exit 1
         fi
+
+	is_install=true
 
         echo 'Running mysql_install_db ...'
         mysql_install_db --datadir="$DATADIR"
@@ -98,12 +102,7 @@ exec "$@" &
 wait_db
 
 if [ -e "/opt/setup.d/setup.yml" ]; then
-    if [ -n "$REDIS_SERVER_HOST" ]; then
-	if [ $(redis-cli -h $REDIS_SERVER_HOST -p $REDIS_SERVER_PORT GET $WAIT_CONTAINER_KEY)'' != 'up' ]; then
-	    echo "embulk run setup.yml"
-	    cd /opt/setup.d && /opt/embulk run setup.yml
-	fi
-    else
+    if [ $is_install=true ]; then
 	echo "embulk run setup.yml"
 	cd /opt/setup.d && /opt/embulk run setup.yml
     fi
