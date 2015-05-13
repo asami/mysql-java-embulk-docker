@@ -2,7 +2,7 @@
 
 set -e
 
-echo WAIT_CONTAINER_KEY: ${WAIT_CONTAINER_KEY:="mysql-java-embulk-docker"}
+echo MYSQL_WAIT_CONTAINER_KEY: ${MYSQL_WAIT_CONTAINER_KEY:="mysql-java-embulk-docker"}
 echo MySQL host: ${MYSQL_SERVER_HOST:=$MYSQL_PORT_3306_TCP_ADDR}
 echo MySQL port: ${MYSQL_SERVER_PORT:=$MYSQL_PORT_3306_TCP_PORT}
 echo PostgreSQL host: ${POSTGRESQL_SERVER_HOST:=$POSTGRESQL_PORT_5432_TCP_ADDR}
@@ -18,11 +18,11 @@ export REDIS_SERVER_PORT
 
 function wait_container_redis {
     result=1
-    for i in $(seq 1 ${WAIT_CONTAINER_TIMER:-100})
+    for i in $(seq 1 ${MYSQL_WAIT_CONTAINER_TIMER:-100})
     do
 	sleep 1s
 	result=0
-	if [ $(redis-cli -h $REDIS_SERVER_HOST -p $REDIS_SERVER_PORT GET $WAIT_CONTAINER_KEY)'' = "up" ]; then
+	if [ $(redis-cli -h $REDIS_SERVER_HOST -p $REDIS_SERVER_PORT GET $MYSQL_WAIT_CONTAINER_KEY)'' = "up" ]; then
 	    break
 	fi
 	echo sample wait: $REDIS_SERVER_HOST
@@ -33,4 +33,6 @@ function wait_container_redis {
     fi
 }
 
-wait_container_redis
+if [ -n "$REDIS_SERVER_HOST" ]; then
+    wait_container_redis
+fi
