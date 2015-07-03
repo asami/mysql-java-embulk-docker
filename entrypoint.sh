@@ -87,7 +87,7 @@ EOSQL
 	# http://qiita.com/toritori0318/items/242274d4f5794e2f68e5
         # setup
         echo "use $MYSQL_DATABASE;" >> "$tempSqlFile"
-	if [ -e "/opt/setup.d/setup.sql"]; then
+	if [ -e "/opt/setup.d/setup.sql" ]; then
             cat /opt/setup.d/setup.sql >> "$tempSqlFile"
 	fi
         # start mysql
